@@ -1,9 +1,18 @@
+using FruitKhaShop.Repository;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddSqlServer<DataContext>(builder.Configuration.GetConnectionString("FruitKhaShopContext") ?? 
+    throw new InvalidOperationException("Connection string 'FruitKhaShopContext' not found.")); ;
+builder.Services.AddControllersWithViews();
+builder.Services.AddHttpContextAccessor(); // Add this line
+builder.Services.AddMemoryCache();
+builder.Services.AddSession();
 
 var app = builder.Build();
+app.UseSession();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -18,7 +27,14 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
+
+// routing cho admin
+app.MapControllerRoute(
+    name: "Areas",
+    pattern: "{area:exists}/{controller=HomeAdmin}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",
