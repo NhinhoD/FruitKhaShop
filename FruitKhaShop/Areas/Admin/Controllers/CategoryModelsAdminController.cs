@@ -7,35 +7,31 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FruitKhaShop.Models;
 using FruitKhaShop.Repository;
+using FruitKhaShop.Areas.Admin.InterfaceRepositories;
 
 namespace FruitKhaShop.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class CategoryModelsAdminController : Controller
+    
+    public class CategoryModelsAdminController(ICategoryAdmin categoryAdmin) : Controller
     {
-        private readonly DataContext _context;
-
-        public CategoryModelsAdminController(DataContext context)
-        {
-            _context = context;
-        }
+        private readonly ICategoryAdmin _categoryAdmin = categoryAdmin;
 
         // GET: Admin/CategoryModelsAdmin
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            return View(await _context.Categories.ToListAsync());
+            return  View(_categoryAdmin.GetAllCategory().ToList());
         }
 
         // GET: Admin/CategoryModelsAdmin/Details/5
-        public async Task<IActionResult> Details(string id)
+        public IActionResult Details(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var categoryModel = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
+            var categoryModel = _categoryAdmin.GetCategoryById(id);
             if (categoryModel == null)
             {
                 return NotFound();
@@ -59,22 +55,21 @@ namespace FruitKhaShop.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(categoryModel);
-                await _context.SaveChangesAsync();
+                _categoryAdmin.AddCategory(categoryModel);
                 return RedirectToAction(nameof(Index));
             }
             return View(categoryModel);
         }
 
         // GET: Admin/CategoryModelsAdmin/Edit/5
-        public async Task<IActionResult> Edit(string id)
+        public IActionResult Edit(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var categoryModel = await _context.Categories.FindAsync(id);
+            var categoryModel = _categoryAdmin.GetCategoryById(id);
             if (categoryModel == null)
             {
                 return NotFound();
@@ -87,7 +82,7 @@ namespace FruitKhaShop.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("CategoryId,CategoryName")] CategoryModel categoryModel)
+        public IActionResult Edit(string id, [Bind("CategoryId,CategoryName")] CategoryModel categoryModel)
         {
             if (id != categoryModel.CategoryId)
             {
@@ -98,19 +93,11 @@ namespace FruitKhaShop.Areas.Admin.Controllers
             {
                 try
                 {
-                    _context.Update(categoryModel);
-                    await _context.SaveChangesAsync();
+                    _categoryAdmin.UpdateCategory(categoryModel, id);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CategoryModelExists(categoryModel.CategoryId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -118,41 +105,14 @@ namespace FruitKhaShop.Areas.Admin.Controllers
         }
 
         // GET: Admin/CategoryModelsAdmin/Delete/5
-        public async Task<IActionResult> Delete(string id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var categoryModel = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
-            if (categoryModel == null)
-            {
-                return NotFound();
-            }
-
-            return View(categoryModel);
-        }
 
         // POST: Admin/CategoryModelsAdmin/Delete/5
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
-        {
-            var categoryModel = await _context.Categories.FindAsync(id);
-            if (categoryModel != null)
-            {
-                _context.Categories.Remove(categoryModel);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool CategoryModelExists(string id)
-        {
-            return _context.Categories.Any(e => e.CategoryId == id);
+        [ValidateAntiForgeryToken] 
+        public IActionResult DeleteConfirmed(string id)     
+        { 
+            _categoryAdmin.DeleteCategory(id);
+            return RedirectToAction(nameof(Index)); 
         }
     }
 }

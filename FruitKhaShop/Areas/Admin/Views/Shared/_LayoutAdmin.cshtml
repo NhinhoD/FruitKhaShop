@@ -63,6 +63,7 @@
                 <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
                     <span class="mdi mdi-menu"></span>
                 </button>
+                @RenderSection("searchArea", required: false)
                 <div class="search-field d-none d-md-block">
                     <form class="d-flex align-items-center h-100" action="#">
                         <div class="input-group">
@@ -236,8 +237,8 @@
                         </a>
                         <div class="collapse" id="ui-basic">
                             <ul class="nav flex-column sub-menu">
-                                <li class="nav-item"> <a class="nav-link" href="pages/ui-features/buttons.html">Buttons</a></li>
-                                <li class="nav-item"> <a class="nav-link" href="pages/ui-features/typography.html">Typography</a></li>
+                                <li class="nav-item"> <a class="nav-link" asp-action="index" asp-controller="ProductModelsAdmin">Product</a></li>
+                                <li class="nav-item"> <a class="nav-link" asp-action="index" asp-controller="CategoryModelsAdmin">Category</a></li>
                             </ul>
                         </div>
                     </li>

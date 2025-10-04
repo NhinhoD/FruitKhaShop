@@ -1,3 +1,6 @@
+using FruitKhaShop.Areas.Admin.InterfaceRepositories;
+using FruitKhaShop.Areas.Admin.Repositories;
+using FruitKhaShop.InterfaceRepositories;
 using FruitKhaShop.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,7 +13,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor(); // Add this line
 builder.Services.AddMemoryCache();
 builder.Services.AddSession();
-
+builder.Services.AddScoped<ICategoryAdmin, CategoryAdmin>();
+builder.Services.AddScoped<IPhotoService, PhotoService>();
 var app = builder.Build();
 app.UseSession();
 

@@ -1,35 +1,66 @@
-﻿@model IEnumerable<FruitKhaShop.Models.CategoryModel>
+﻿@using FruitKhaShop.Models
+@model List<CategoryModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["title"] = "Category";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<h1>Index</h1>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.CategoryName)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.CategoryName)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.CategoryId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.CategoryId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.CategoryId">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<link rel="stylesheet" href="path/to/font-awesome/css/all.min.css" />
+
+<div class="text-center">
+    <h2 class="display-4">PRODUCT CATEGORY LIST</h2>
+</div>
+
+ @section searchArea {
+   <form id="searchForm" asp-controller="CategoryModelsAdmin" asp-action="Index" method="get" class="d-flex" style="width:468px"> 
+        <div class="input-group"> 
+           <!-- Search bar --> 
+          <input name="searchString" id="searchString" type="search" placeholder="search type shoes..." class="form-control rounded" aria-label="Search" style="width:100px"> 
+            <button class="btn btn-info rounded" type="submit" style="width: 40px; height: 40px;"> 
+                 <i class="fas fa-search"></i> 
+            </button> 
+        </div> 
+     </form> 
+
+ } 
+
+<div style="display: flex; justify-content: space-between; align-items: center; width:100%">
+    <!-- Link for creating a new Loai -->
+    <a asp-action="Create" asp-controller="CategoryModelsAdmin" class="btn btn-primary"><i class="mdi mdi-plus-circle"></i></a>
+</div>
+<div class="table-responsive">
+    <table class="table table-striped table-bordered text-center">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Product Category Name</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Populate table with Loai data -->
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.CategoryId?.ToUpper().Substring(0, 6)</td>
+                    <td>@item.CategoryName</td>
+                    <td>
+                        <a asp-action="Edit" asp-controller="CategoryModelsAdmin" asp-route-id="@item.CategoryId" class="btn btn-gradient-primary">
+                            <i class="mdi mdi-table-edit"></i>
+                        </a>
+                        <form asp-controller="CategoryModelsAdmin" asp-action="Delete" asp-route-id="@item.CategoryId" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this category?');">
+                            <button type="submit" class="btn btn-gradient-danger">
+                                <i class="mdi mdi-delete"></i>
+                            </button>
+                        </form>
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+

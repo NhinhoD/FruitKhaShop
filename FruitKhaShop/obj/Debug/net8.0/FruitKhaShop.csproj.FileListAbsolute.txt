@@ -267,3 +267,4 @@ D:\FruitKha\FruitKhaShop\FruitKhaShop\obj\Debug\net8.0\refint\FruitKhaShop.dll
 D:\FruitKha\FruitKhaShop\FruitKhaShop\obj\Debug\net8.0\FruitKhaShop.pdb
 D:\FruitKha\FruitKhaShop\FruitKhaShop\obj\Debug\net8.0\FruitKhaShop.genruntimeconfig.cache
 D:\FruitKha\FruitKhaShop\FruitKhaShop\obj\Debug\net8.0\ref\FruitKhaShop.dll
+D:\FruitKha\FruitKhaShop\FruitKhaShop\bin\Debug\net8.0\CloudinaryDotNet.dll

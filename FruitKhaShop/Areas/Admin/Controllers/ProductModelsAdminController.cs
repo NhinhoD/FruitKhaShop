@@ -7,23 +7,24 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FruitKhaShop.Models;
 using FruitKhaShop.Repository;
+using FruitKhaShop.Areas.Admin.InterfaceRepositories;
 
 namespace FruitKhaShop.Areas.Admin.Controllers
 {
     [Area("Admin")]
     public class ProductModelsAdminController : Controller
     {
-        private readonly DataContext _context;
+        private readonly IProductAdmin _productAdmin;
 
-        public ProductModelsAdminController(DataContext context)
+        public ProductModelsAdminController(IProductAdmin productAdmin)
         {
-            _context = context;
+            _productAdmin = productAdmin;
         }
 
         // GET: Admin/ProductModelsAdmin
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            return View(await _context.Products.ToListAsync());
+            return View(_productAdmin.GetAllProduct().ToList());
         }
 
         // GET: Admin/ProductModelsAdmin/Details/5
@@ -34,14 +35,7 @@ namespace FruitKhaShop.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var productModel = await _context.Products
-                .FirstOrDefaultAsync(m => m.ProductId == id);
-            if (productModel == null)
-            {
-                return NotFound();
-            }
-
-            return View(productModel);
+            return View(await Task.FromResult(_productAdmin.GetProductById(id)));
         }
 
         // GET: Admin/ProductModelsAdmin/Create
@@ -57,29 +51,13 @@ namespace FruitKhaShop.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ProductId,ProductName,Description,Price,ImageUrl,Quantity,Category,Weight")] ProductModel productModel)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(productModel);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
             return View(productModel);
         }
 
         // GET: Admin/ProductModelsAdmin/Edit/5
         public async Task<IActionResult> Edit(string id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var productModel = await _context.Products.FindAsync(id);
-            if (productModel == null)
-            {
-                return NotFound();
-            }
-            return View(productModel);
+            return View(await Task.FromResult(_productAdmin.GetProductById(id)));
         }
 
         // POST: Admin/ProductModelsAdmin/Edit/5
@@ -94,26 +72,7 @@ namespace FruitKhaShop.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(productModel);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProductModelExists(productModel.ProductId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
+            
             return View(productModel);
         }
 
@@ -125,14 +84,9 @@ namespace FruitKhaShop.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var productModel = await _context.Products
-                .FirstOrDefaultAsync(m => m.ProductId == id);
-            if (productModel == null)
-            {
-                return NotFound();
-            }
+            
 
-            return View(productModel);
+            return View();
         }
 
         // POST: Admin/ProductModelsAdmin/Delete/5
@@ -140,19 +94,9 @@ namespace FruitKhaShop.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var productModel = await _context.Products.FindAsync(id);
-            if (productModel != null)
-            {
-                _context.Products.Remove(productModel);
-            }
-
-            await _context.SaveChangesAsync();
+           
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ProductModelExists(string id)
-        {
-            return _context.Products.Any(e => e.ProductId == id);
-        }
     }
 }

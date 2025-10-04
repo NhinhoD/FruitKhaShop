@@ -8,22 +8,24 @@
 
 <h4>CategoryModel</h4>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="CategoryId" />
-            <div class="form-group">
-                <label asp-for="CategoryName" class="control-label"></label>
-                <input asp-for="CategoryName" class="form-control" />
-                <span asp-validation-for="CategoryName" class="text-danger"></span>
+@using (Html.BeginForm("Edit", "CategoryModelsAdmin", FormMethod.Post, new { @class = "forms-sample" }))
+{
+    <div class="col-12 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-center">Edit Product Category</h2>
+                    <div class="form-group">
+                    <input type="hidden" asp-for="CategoryId" />
+                        <label asp-for="CategoryName">Shoes Category Name</label>
+                        <input type="text" asp-for="CategoryName" class="form-control" id="exampleInputName1" placeholder="Name">
+                        <span asp-validation-for="CategoryName" class="text-danger"></span>
+                    </div>
+                    <button type="submit" class="btn btn-gradient-primary me-2">Edit</button>
+                    <a href="@Url.Action("Index", "CategoryModelsAdmin")" class="btn btn-light">Cancel</a>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
-</div>
+}
 
 <div>
     <a asp-action="Index">Back to List</a>
