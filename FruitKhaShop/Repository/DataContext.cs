@@ -30,7 +30,8 @@ namespace FruitKhaShop.Repository
             modelBuilder.Entity<ProductCategoryModel>()
                 .HasOne(pc => pc.Category)
                 .WithMany(c => c.ProductCategories)
-                .HasForeignKey(pc => pc.CategoryId);
+                .HasForeignKey(pc => pc.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

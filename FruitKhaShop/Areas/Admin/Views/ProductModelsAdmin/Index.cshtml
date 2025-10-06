@@ -1,71 +1,99 @@
 ﻿@model IEnumerable<FruitKhaShop.Models.ProductModel>
 
 @{
-    ViewData["Title"] = "ProductAdmin";
+    ViewData["Title"] = "Product List";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
 }
+@Html.AntiForgeryToken()
 
-<h1>Index</h1>
+<h1 class="text-center mb-4">Product List</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary">+ Create New</a>
 </p>
-<table class="table">
-    <thead>
+
+<table class="table table-bordered table-striped text-center align-middle">
+    <thead class="table-dark">
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.ProductName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ImageUrl)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Quantity)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Category)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Weight)
-            </th>
-            <th></th>
+            <th>Product Name</th>
+            <th>Description</th>
+            <th>Price</th>
+            <th>Image</th>
+            <th>Quantity</th>
+            <th>Categories</th>
+            <th>Weight</th>
+            <th style="width: 150px;">Actions</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.ProductName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ImageUrl)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Quantity)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Category)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Weight)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ProductId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ProductId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.ProductName</td>
+                <td>@Html.Raw(item.Description)</td>
+                <td>@($"{item.Price:N0} ₫")</td>
+                <td>
+                    <img src="@item.ImageUrl" alt="Image" width="80" height="80" class="img-thumbnail" />
+                </td>
+                <td>@item.Quantity</td>
+                <td>
+                    @if (item.ProductCategories != null && item.ProductCategories.Any())
+                    {
+                        @string.Join(", ", item.ProductCategories.Select(pc => pc.Category.CategoryName))
+                    }
+                    else
+                    {
+                        <span class="text-muted">No Category</span>
+                    }
+                </td>
+                <td>@item.Weight Kg</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ProductId" class="btn btn-sm btn-warning">Edit</a>
+                    <button type="button" class="btn btn-danger btn-sm"
+                            onclick="confirmDelete('@item.ProductId', '@item.ProductName')">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function confirmDelete(productId, productName) {
+        Swal.fire({
+            title: "Xác nhận xóa?",
+            text: `Bạn có chắc muốn xóa sản phẩm "${productName}" không?`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Vẫn xóa",
+            cancelButtonText: "Hủy bỏ"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // ✅ Gửi POST đến DeleteConfirmed
+                fetch(`/Admin/ProductModelsAdmin/Delete/${productId}`, {
+                    method: "POST",
+                    headers: {
+                        "RequestVerificationToken": document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        Swal.fire({
+                            title: "Đã xóa!",
+                            text: "Sản phẩm đã được xóa thành công.",
+                            icon: "success",
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => location.reload());
+                    } else {
+                        Swal.fire("Lỗi!", "Không thể xóa sản phẩm này.", "error");
+                    }
+                })
+                .catch(() => Swal.fire("Lỗi!", "Có lỗi khi xóa sản phẩm.", "error"));
+            }
+        });
+    }
+</script>

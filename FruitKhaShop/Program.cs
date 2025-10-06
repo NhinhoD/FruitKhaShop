@@ -1,6 +1,7 @@
-using FruitKhaShop.Areas.Admin.InterfaceRepositories;
+﻿using FruitKhaShop.Areas.Admin.InterfaceRepositories;
 using FruitKhaShop.Areas.Admin.Repositories;
 using FruitKhaShop.InterfaceRepositories;
+using FruitKhaShop.Models;
 using FruitKhaShop.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,12 +10,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddSqlServer<DataContext>(builder.Configuration.GetConnectionString("FruitKhaShopContext") ?? 
     throw new InvalidOperationException("Connection string 'FruitKhaShopContext' not found.")); ;
+// Cấu hình Cloudinary
+builder.Services.Configure<CloudinarySettings>(
+    builder.Configuration.GetSection("CloudinarySettings"));
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor(); // Add this line
 builder.Services.AddMemoryCache();
 builder.Services.AddSession();
 builder.Services.AddScoped<ICategoryAdmin, CategoryAdmin>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
+builder.Services.AddScoped<IProductAdmin, ProductAdmin>();
 var app = builder.Build();
 app.UseSession();
 

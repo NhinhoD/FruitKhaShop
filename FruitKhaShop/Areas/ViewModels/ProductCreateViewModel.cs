@@ -11,8 +11,9 @@ namespace FruitKhaShop.Areas.ViewModels
         public string? Description { get; set; }
         [Required]
         public decimal Price { get; set; }
-        [Required]
+       
         public IFormFile? ImageUrl { get; set; }
+        public string? ExistingImageUrl { get; set; }
         [Required]
         public int Quantity { get; set; }
         [Required]

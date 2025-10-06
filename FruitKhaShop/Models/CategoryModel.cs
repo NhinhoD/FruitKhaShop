@@ -9,6 +9,6 @@ namespace FruitKhaShop.Models
         public string? CategoryName { get; set; }
 
         // Navigation property
-        public ICollection<ProductCategoryModel>? ProductCategories { get; set; }
+        public ICollection<ProductCategoryModel>? ProductCategories { get; set; } = new List<ProductCategoryModel>();
     }
 }

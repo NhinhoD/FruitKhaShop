@@ -107,12 +107,29 @@ namespace FruitKhaShop.Areas.Admin.Controllers
         // GET: Admin/CategoryModelsAdmin/Delete/5
 
         // POST: Admin/CategoryModelsAdmin/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken] 
-        public IActionResult DeleteConfirmed(string id)     
-        { 
-            _categoryAdmin.DeleteCategory(id);
-            return RedirectToAction(nameof(Index)); 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(string id, bool confirm = false)
+        {
+            var result = _categoryAdmin.DeleteCategory(id, confirm);
+
+            if (result == "CategoryInUse" && !confirm)
+            {
+                TempData["ConfirmDelete"] = "Danh mục này đang được sử dụng trong sản phẩm. Bạn có chắc chắn muốn xóa không?";
+                TempData["CategoryId"] = id;
+            }
+            else if (result == "Deleted")
+            {
+                TempData["SuccessMessage"] = "Danh mục đã được xóa thành công!";
+                TempData["Source"] = "Category"; 
+            }
+            else if (result == "CategoryNotFound")
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy danh mục.";
+                TempData["Source"] = "Category";
+            }
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

@@ -8,7 +8,7 @@ namespace FruitKhaShop.Areas.Admin.InterfaceRepositories
         IQueryable<CategoryModel> GetAllCategory();
         void AddCategory(CategoryModel category);
         void UpdateCategory(CategoryModel loai, string id);
-        void DeleteCategory(string Id);
+        string DeleteCategory(string Id, bool forceDelete = false);
         List<string> GetDistinctCategory();
     }
 }

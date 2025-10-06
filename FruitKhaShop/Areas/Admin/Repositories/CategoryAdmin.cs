@@ -1,6 +1,8 @@
 ﻿using FruitKhaShop.Areas.Admin.InterfaceRepositories;
 using FruitKhaShop.Models;
 using FruitKhaShop.Repository;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 
 namespace FruitKhaShop.Areas.Admin.Repositories
 {
@@ -25,17 +27,34 @@ namespace FruitKhaShop.Areas.Admin.Repositories
         }
 
 
-        public void DeleteCategory(string Id)
+        public string DeleteCategory(string Id, bool forceDelete = false)
         {
-            CategoryModel category = _context.Categories
-                            .FirstOrDefault(l => l.CategoryId == Id)!;
+            var category = _context.Categories
+         .Include(c => c.ProductCategories)
+         .FirstOrDefault(c => c.CategoryId == Id);
 
-            if (category != null)
+            if (category == null)
+                return "Category not found.";
+
+            // Bảo vệ null
+            var hasProducts = category.ProductCategories != null && category.ProductCategories.Any();
+
+            if (hasProducts && !forceDelete)
             {
-                _context.Categories.Remove(category);
-                _context.SaveChanges();
-
+                return "CategoryInUse";
             }
+
+            // Nếu forceDelete = true và có liên kết → xóa trước
+            if (hasProducts)
+            {
+                _context.ProductCategories.RemoveRange(category.ProductCategories);
+            }
+
+            _context.Categories.Remove(category);
+            _context.SaveChanges();
+
+            return "Deleted";
+
         }
 
         public IQueryable<CategoryModel> GetAllCategory()

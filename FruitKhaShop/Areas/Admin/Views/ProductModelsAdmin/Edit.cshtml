@@ -1,64 +1,126 @@
-﻿@model FruitKhaShop.Models.ProductModel
+﻿@model FruitKhaShop.Areas.ViewModels.ProductCreateViewModel
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Update Product";
+    var existingImage = ViewBag.ExistingImage as string;
 }
+<head>
+    <style>
+        /* khung cố định, ảnh được scale toàn bộ vào trong */
+        .img-box {
+            width: 360px; /* tuỳ chỉnh */
+            height: 240px; /* tuỳ chỉnh */
+            margin: 0 auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            overflow: hidden;
+            padding: 8px;
+        }
 
-<h1>Edit</h1>
+        /* chứa toàn bộ ảnh: scale xuống, giữ tỉ lệ, không crop */
+        .img-box-contain .img-preview {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; /* giữ toàn bộ ảnh */
+            display: block;
+        }
 
-<h4>ProductModel</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="ProductId" />
-            <div class="form-group">
-                <label asp-for="ProductName" class="control-label"></label>
+    </style>
+</head>
+<div class="container mt-4">
+    <h2 class="mb-4 text-center text-primary fw-bold">Update Product</h2>
+
+    <form asp-action="Edit" asp-controller="ProductModelsAdmin" method="post" enctype="multipart/form-data" class="border p-4 rounded shadow-sm bg-white">
+        <div class="row">
+            <input type="hidden" asp-for="ExistingImageUrl" value="@ViewBag.ExistingImage" />
+
+            <div class="col-md-6 mb-3">
+                <label asp-for="ProductName" class="form-label fw-bold">Product Name</label>
                 <input asp-for="ProductName" class="form-control" />
                 <span asp-validation-for="ProductName" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Price" class="control-label"></label>
-                <input asp-for="Price" class="form-control" />
+
+            <div class="col-md-6 mb-3">
+                <label asp-for="Price" class="form-label fw-bold">Price (₫)</label>
+                <input asp-for="Price" type="number" step="0.01" class="form-control" />
                 <span asp-validation-for="Price" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="ImageUrl" class="control-label"></label>
-                <input asp-for="ImageUrl" class="form-control" />
-                <span asp-validation-for="ImageUrl" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Quantity" class="control-label"></label>
-                <input asp-for="Quantity" class="form-control" />
+
+            <div class="col-md-6 mb-3">
+                <label asp-for="Quantity" class="form-label fw-bold">Quantity</label>
+                <input asp-for="Quantity" type="number" class="form-control" />
                 <span asp-validation-for="Quantity" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Category" class="control-label"></label>
-                <input asp-for="Category" class="form-control" />
-                <span asp-validation-for="Category" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Weight" class="control-label"></label>
-                <input asp-for="Weight" class="form-control" />
+
+            <div class="col-md-6 mb-3">
+                <label asp-for="Weight" class="form-label fw-bold">Weight (kg)</label>
+                <input asp-for="Weight" type="number" step="0.01" class="form-control" />
                 <span asp-validation-for="Weight" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+            <div class="col-md-12 mb-3">
+                <label asp-for="Description" class="form-label fw-bold">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+           
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Categories</label>
+                <select asp-for="SelectedCategoryIds"
+                        class="form-select select2"
+                        multiple="multiple"
+                        asp-items="@(new MultiSelectList(Model.Categories, "CategoryId", "CategoryName", Model.SelectedCategoryIds?.FirstOrDefault()))">
+                </select>
+                <span asp-validation-for="SelectedCategoryIds" class="text-danger"></span>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="ImageUrl" class="form-label fw-bold">Product Image</label>
+                <input asp-for="ImageUrl" type="file" class="form-control" accept="image/*" onchange="previewImage(event)" />
+                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+
+                <div class="mt-3 text-center" style="background: none !important;">
+                    <div class="img-box img-box-contain">
+                        <img id="preview" src="@(string.IsNullOrEmpty(existingImage) ? "" : existingImage)" alt="Product Image"
+                             class="img-preview @(string.IsNullOrEmpty(existingImage) ? "d-none" : "")" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary px-4 me-2">Update</button>
+            <a asp-action="Index" class="btn btn-secondary px-4">Back to List</a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function previewImage(event) {
+          const preview = document.getElementById('preview');
+          const file = event.target.files && event.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.classList.remove('d-none');
+          };
+          reader.readAsDataURL(file);
+        }
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('.select2').select2({
+                placeholder: "Select categories...",
+                allowClear: true,
+                width: '100%'
+            });
+        });
+    </script>
 }
