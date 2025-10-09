@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using FruitKhaShop.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,16 +17,41 @@ namespace FruitKhaShop.Controllers
         {
             return View();
         }
+        public IActionResult Error(int? statusCode = null)
+        {
+            if (statusCode.HasValue)
+            {
+                if (statusCode == 404)
+                {
+                    ViewData["ErrorMessage"] = "Trang bạn yêu cầu không tồn tại.";
+                    ViewData["Title"] = "404 - Not Found";
+                }
+                else if (statusCode == 500)
+                {
+                    ViewData["ErrorMessage"] = "Đã xảy ra lỗi hệ thống.";
+                    ViewData["Title"] = "Lỗi máy chủ";
+                }
+                else
+                {
+                    ViewData["ErrorMessage"] = $"Đã xảy ra lỗi {statusCode}";
+                    ViewData["Title"] = "Lỗi";
+                }
+            }
+            else
+            {
+                ViewData["ErrorMessage"] = "Đã xảy ra lỗi không xác định.";
+                ViewData["Title"] = "Lỗi";
+            }
+
+            return View("Error");
+        }
+
 
         public IActionResult Privacy()
         {
             return View();
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+       
     }
 }

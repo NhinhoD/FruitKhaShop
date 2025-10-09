@@ -4,96 +4,132 @@
     ViewData["Title"] = "Product List";
     Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
 }
+
 @Html.AntiForgeryToken()
 
-<h1 class="text-center mb-4">Product List</h1>
+<!-- Bootstrap & FontAwesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">+ Create New</a>
-</p>
+<div class="container mt-4">
+    <!-- Tiêu đề -->
+    <div class="text-center mb-4">
+        <h2 class="fw-bold text-uppercase text-primary">Product List</h2>
+        <hr class="w-25 mx-auto border-2 border-primary">
+    </div>
 
-<table class="table table-bordered table-striped text-center align-middle">
-    <thead class="table-dark">
-        <tr>
-            <th>Product Name</th>
-            <th>Description</th>
-            <th>Price</th>
-            <th>Image</th>
-            <th>Quantity</th>
-            <th>Categories</th>
-            <th>Weight</th>
-            <th style="width: 150px;">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.ProductName</td>
-                <td>@Html.Raw(item.Description)</td>
-                <td>@($"{item.Price:N0} ₫")</td>
-                <td>
-                    <img src="@item.ImageUrl" alt="Image" width="80" height="80" class="img-thumbnail" />
-                </td>
-                <td>@item.Quantity</td>
-                <td>
-                    @if (item.ProductCategories != null && item.ProductCategories.Any())
+    <!-- Nút thêm -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a asp-action="Create" class="btn btn-success shadow-sm">
+            <i class="fa fa-plus-circle me-1"></i> Add New Product
+        </a>
+    </div>
+
+    <!-- Bảng sản phẩm -->
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-hover table-bordered align-middle text-center">
+            <thead class="table-primary">
+                <tr>
+                    <th>Product Name</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Image</th>
+                    <th>Quantity</th>
+                    <th>Categories</th>
+                    <th>Weight</th>
+                    <th style="width: 150px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
                     {
-                        @string.Join(", ", item.ProductCategories.Select(pc => pc.Category.CategoryName))
+                        <tr>
+                            <td class="fw-semibold">@item.ProductName</td>
+                            <td class="text-truncate" style="max-width: 300px;">@Html.Raw(item.Description)</td>
+                            <td class="fw-bold text-success">@($"{item.Price:N0} ₫")</td>
+                            <td>
+                                <img src="@item.ImageUrl" alt="@item.ProductName" width="80" height="80" class="img-thumbnail rounded" />
+                            </td>
+                            <td>@item.Quantity</td>
+                            <td>
+                                @if (item.ProductCategories != null && item.ProductCategories.Any())
+                                {
+                                    @string.Join(", ", item.ProductCategories.Select(pc => pc.Category.CategoryName))
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No Category</span>
+                                }
+                            </td>
+                            <td>@item.Weight Kg</td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.ProductId" class="btn btn-warning btn-sm me-1" title="Edit">
+                                    <i class="fa fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn btn-danger btn-sm"
+                                        title="Delete"
+                                        onclick="confirmDelete('@item.ProductId', '@item.ProductName')">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
                     }
-                    else
-                    {
-                        <span class="text-muted">No Category</span>
-                    }
-                </td>
-                <td>@item.Weight Kg</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.ProductId" class="btn btn-sm btn-warning">Edit</a>
-                    <button type="button" class="btn btn-danger btn-sm"
-                            onclick="confirmDelete('@item.ProductId', '@item.ProductName')">
-                        Delete
-                    </button>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    function confirmDelete(productId, productName) {
-        Swal.fire({
-            title: "Xác nhận xóa?",
-            text: `Bạn có chắc muốn xóa sản phẩm "${productName}" không?`,
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "Vẫn xóa",
-            cancelButtonText: "Hủy bỏ"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // ✅ Gửi POST đến DeleteConfirmed
-                fetch(`/Admin/ProductModelsAdmin/Delete/${productId}`, {
-                    method: "POST",
-                    headers: {
-                        "RequestVerificationToken": document.querySelector('input[name="__RequestVerificationToken"]').value
-                    }
-                })
-                .then(response => {
-                    if (response.ok) {
-                        Swal.fire({
-                            title: "Đã xóa!",
-                            text: "Sản phẩm đã được xóa thành công.",
-                            icon: "success",
-                            timer: 1500,
-                            showConfirmButton: false
-                        }).then(() => location.reload());
-                    } else {
-                        Swal.fire("Lỗi!", "Không thể xóa sản phẩm này.", "error");
-                    }
-                })
-                .catch(() => Swal.fire("Lỗi!", "Có lỗi khi xóa sản phẩm.", "error"));
-            }
-        });
-    }
-</script>
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" class="text-muted text-center py-4">
+                            <i class="fa fa-box-open fa-2x mb-2 d-block"></i>
+                            No products available.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Hàm xác nhận xóa sản phẩm
+        window.confirmDelete = function (productId, productName) {
+            Swal.fire({
+                title: "Xác nhận xóa?",
+                text: `Bạn có chắc muốn xóa sản phẩm "${productName}" không?`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Vẫn xóa",
+                cancelButtonText: "Hủy bỏ"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/Admin/ProductModelsAdmin/Delete/${productId}`, {
+                        method: "POST",
+                        headers: {
+                            "RequestVerificationToken":
+                                document.querySelector('input[name="__RequestVerificationToken"]').value
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            Swal.fire({
+                                title: "Đã xóa!",
+                                text: "Sản phẩm đã được xóa thành công.",
+                                icon: "success",
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => location.reload());
+                        } else {
+                            Swal.fire("Lỗi!", "Không thể xóa sản phẩm này.", "error");
+                        }
+                    })
+                    .catch(() => Swal.fire("Lỗi!", "Có lỗi khi xóa sản phẩm.", "error"));
+                }
+            });
+        };
+    </script>
+}

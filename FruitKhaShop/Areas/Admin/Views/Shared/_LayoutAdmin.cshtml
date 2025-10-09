@@ -325,35 +325,6 @@
     <script src="../../LayoutAdmin/assets/js/misc.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
-                document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('a.ajax-link').forEach(link => {
-                link.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const url = this.getAttribute('href');
-
-                    fetch(url)
-                        .then(response => response.text())
-                        .then(html => {
-                            const parser = new DOMParser();
-                            const doc = parser.parseFromString(html, 'text/html');
-
-                            const newContent = doc.querySelector('#main-content');
-                            const currentContent = document.querySelector('#main-content');
-
-                            if (newContent && currentContent) {
-                                currentContent.innerHTML = newContent.innerHTML;
-                                window.history.pushState({}, '', url);
-                            } else {
-                                console.error('❌ Không tìm thấy #main-content trong trang.');
-                            }
-                        })
-                        .catch(err => console.error('Fetch error:', err));
-                });
-            });
-        });
-
-    </script>
     @RenderSection("Scripts", required: false)
     <!-- endinject -->
     <!-- Custom js for this page -->
